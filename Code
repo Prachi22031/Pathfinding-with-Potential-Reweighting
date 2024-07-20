@@ -1,0 +1,39 @@
+import networkx as nx
+import heapq
+
+def potential_reweighting(graph, source, destination):
+    # Step 1: Calculate potentials (distances to destination node)
+    potentials = {}
+    for node in graph.nodes():
+        potentials[node] = nx.shortest_path_length(graph, node, destination)
+    
+    # Step 2: Adjust edge lengths based on potentials
+    for u, v in graph.edges():
+        old_length = graph[u][v]['weight']
+        new_length = old_length + potentials[u] - potentials[v]
+        graph[u][v]['weight'] = new_length
+    
+    # Step 3: Use Dijkstra's algorithm to find shortest path with adjusted weights
+    shortest_path = nx.dijkstra_path(graph, source, destination, weight='weight')
+    shortest_distance = nx.dijkstra_path_length(graph, source, destination, weight='weight')
+    
+    return shortest_path, shortest_distance
+
+# Example usage
+if __name__ == "__main__":
+    # Create a graph (you should replace this with your actual graph initialization)
+    G = nx.Graph()
+    G.add_edge('A', 'B', weight=1)
+    G.add_edge('B', 'C', weight=2)
+    G.add_edge('C', 'D', weight=3)
+    G.add_edge('A', 'D', weight=5)
+    
+    # Specify source and destination nodes
+    source_node = 'A'
+    destination_node = 'D'
+    
+    # Apply potential reweighting and find shortest path
+    shortest_path, shortest_distance = potential_reweighting(G, source_node, destination_node)
+    
+    print(f"Shortest path from {source_node} to {destination_node}: {shortest_path}")
+    print(f"Shortest distance: {shortest_distance}")
